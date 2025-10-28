@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego de Cultura General</title>
+</head>
+<body>
+
+  <header>
+    <h1>🎮 Juego de Cultura General</h1>
+    <p>Elige categoría y dificultad para comenzar.</p>
+  </header>
+
+  <main>
+    <section id="menu">
+      <h2>⚙️ Configuración del Juego</h2>
+      <label>Categoría: 
+        <select id="categoria">
+          <option value="general">General</option>
+          <option value="historia">Historia</option>
+          <option value="ciencia">Ciencia</option>
+        </select>
+      </label>
+      <br><br>
+      <label>Dificultad: 
+        <select id="dificultad">
+          <option value="facil">Fácil</option>
+          <option value="medio">Medio</option>
+          <option value="dificil">Difícil</option>
+        </select>
+      </label>
+      <br><br>
+      <button id="iniciar">🚀 Iniciar Juego</button>
+    </section>
+
+    <section id="quiz-container" style="display:none;">
+      <h2 id="pregunta"></h2>
+      <div id="opciones"></div>
+
+      <p>⏳ Tiempo: <span id="tiempo">10</span>s</p>
+      <p>❤️ Vidas: <span id="vidas">3</span> | ⭐ Puntos: <span id="puntos">0</span></p>
+      <progress id="progreso" value="0" max="100"></progress><br><br>
+
+      <p id="mensaje"></p>
+      <button id="reiniciar">🔄 Reiniciar</button>
+    </section>
+
+    <section id="final" style="display:none;">
+      <h2 id="resultado"></h2>
+      <p id="recompensa"></p>
+      <button onclick="location.reload()">🔄 Jugar de nuevo</button>
+    </section>
+  </main>
+
+
+</body>
+</html>
