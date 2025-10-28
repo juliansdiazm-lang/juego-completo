@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego de Cultura General</title>
+  <style>
+    /* Estilos Generales */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #fff;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden; /* Evita el scroll cuando la alerta está activa */
+    }
+
+    #quiz-container {
+      background: rgba(255, 253, 253, 0.95);
+      color: #333;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      max-width: 650px;
+      width: 100%;
+      text-align: center;
+      animation: aparecer 0.8s ease-in-out;
+      position: relative;
+      z-index: 10;
+    }
+
+    @keyframes aparecer {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+
+    h2, h3 {
+      margin: 10px 0;
+      color: #34495e;
+    }
+
+    /* 🟦 Botones */
+    button {
+      margin: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 10px;
+      border: none;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Opciones */
+    .opcion {
+      background-color: #3498db;
+      color: rgb(242, 241, 247);
+      display: block;
+      width: 85%;
+      margin: 10px auto;
+    }
+
+    .opcion:hover {
+      background-color: #2980b9;
+    }
+     /* Deshabilitar botones de opción después de seleccionar */
+    .opcion:disabled {
+        cursor: not-allowed;
+        background-color: #070ca7;
+    }
+
+    /* Botón Reiniciar */
+    #reiniciar {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    #reiniciar:hover {
+      background-color: #c0392b;
+    }
+
+    /*  Temporizador */
+    #temporizador {
+      font-size: 20px;
+      margin: 20px 0;
+      font-weight: bold;
+      color: #e74c3c;
+      background: #fceaea;
+      padding: 8px;
+      border-radius: 8px;
+      display: inline-block;
+      min-width: 120px;
+    }
+
+    /*  Resultado */
+    #resultado {
+      animation: aparecer 0.8s ease-in-out;
+    }
+
+    #mensaje-final {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    #medalla {
+      font-size: 26px;
+      margin: 20px 0;
+      color: #8e44ad;
+    }
+    
+    /*  Alerta Personalizada */
+    #alerta-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none; /* Oculto por defecto */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    #alerta-personalizada {
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        animation: aparecer 0.5s ease-in-out;
+    }
+
+    #alerta-mensaje {
+        font-size: 20px;
+        margin-bottom: 20px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    #alerta-boton {
+        padding: 10px 30px;
+        border-radius: 8px;
+        font-size: 16px;
+        color: #fff;
+        font-weight: bold;
+    }
+    
+    /* Estilos por tipo de alerta */
+    #alerta-personalizada.correcta #alerta-boton {
+        background-color: #2ecc71; /* verde */
+    }
+    #alerta-personalizada.correcta #alerta-boton:hover {
+        background-color: #27ae60;
+    }
+
+    #alerta-personalizada.incorrecta #alerta-boton {
+        background-color: #e74c3c; /* rojo */
+    }
+    #alerta-personalizada.incorrecta #alerta-boton:hover {
+        background-color: #c0392b;
+    }
+
+    #alerta-personalizada.tiempo-agotado #alerta-boton {
+        background-color: #f39c12; /* naranja */
+    }
+    #alerta-personalizada.tiempo-agotado #alerta-boton:hover {
+        background-color: #e67e22;
+    }
+
+
+    /*  Responsividad */
+    @media (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+      #quiz-container {
+        padding: 20px;
+      }
+      button {
+        width: 100%;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="alerta-overlay">
+    <div id="alerta-personalizada">
+        <h2 id="alerta-mensaje"></h2>
+        <button id="alerta-boton">Siguiente</button>
+    </div>
+  </div>
+
+  <div id="quiz-container">
+    <h1>Juego de Cultura General </h1>
+    <div id="inicio">
+      <h3>Selecciona categoría:</h3>
+      <button onclick="seleccionarCategoria('general')">General</button>
+      <button onclick="seleccionarCategoria('historia')">Historia</button>
+      <button onclick="seleccionarCategoria('ciencia')">Ciencia</button>
+    </div>
+
+    <div id="juego" style="display:none;">
+      <h2 id="pregunta"></h2>
+      <div id="opciones"></div>
+      <div id="temporizador"></div>
+      <button id="reiniciar"> Reiniciar</button>
+    </div>
+
+    <div id="resultado" style="display:none;">
+      <h2 id="mensaje-final"></h2>
+      <h3 id="medalla"></h3>
+      <button onclick="reiniciarJuego()">Jugar de nuevo</button>
+    </div>
+  </div>
+
+<script>
+  const bancoPreguntas = {
+    general: [
+      { pregunta: "¿Cuál es el planeta más cercano al Sol?", opciones: ["Mercurio", "Venus", "Marte", "Saturno"], correcta: 0 },
+      { pregunta: "¿Quién pintó la Mona Lisa?", opciones: ["Van Gogh", "Leonardo da Vinci", "Picasso", "Miguel Ángel"], correcta: 1 },
+      { pregunta: "¿Cuál es el océano más grande?", opciones: ["Atlántico", "Índico", "Pacífico", "Ártico"], correcta: 2 },
+      { pregunta: "¿Qué país ganó el Mundial de 2010?", opciones: ["Brasil", "España", "Alemania", "Francia"], correcta: 1 },
+      { pregunta: "¿Cuál es el idioma más hablado?", opciones: ["Inglés", "Español", "Chino mandarín", "Árabe"], correcta: 2 },
+      { pregunta: "¿Cuál es el animal terrestre más rápido?", opciones: ["León", "Tigre", "Guepardo", "Caballo"], correcta: 2 },
+      { pregunta: "¿Qué instrumento tiene teclas blancas y negras?", opciones: ["Guitarra", "Violín", "Piano", "Flauta"], correcta: 2 }
+    ],
+    historia: [
+      { pregunta: "¿En qué año llegó Colón a América?", opciones: ["1492", "1500", "1600", "1453"], correcta: 0 },
+      { pregunta: "¿Quién fue el primer presidente de EE.UU.?", opciones: ["Lincoln", "George Washington", "Jefferson", "Adams"], correcta: 1 },
+      { pregunta: "¿En qué año cayó el Muro de Berlín?", opciones: ["1980", "1985", "1989", "1991"], correcta: 2 },
+      { pregunta: "¿Quién fue Cleopatra?", opciones: ["Reina de Egipto", "Reina de Roma", "Diosa griega", "Filósofa"], correcta: 0 },
+      { pregunta: "¿Qué civilización construyó las pirámides?", opciones: ["Mayas", "Egipcios", "Aztecas", "Romanos"], correcta: 1 },
+      { pregunta: "¿Cuándo empezó la Primera Guerra Mundial?", opciones: ["1914", "1939", "1920", "1900"], correcta: 0 },
+      { pregunta: "¿Qué imperio gobernó Julio César?", opciones: ["Griego", "Romano", "Egipcio", "Persa"], correcta: 1 }
+    ],
+    ciencia: [
+      { pregunta: "¿Quién formuló la relatividad?", opciones: ["Newton", "Einstein", "Galileo", "Tesla"], correcta: 1 },
+      { pregunta: "¿Cuál es el símbolo del agua?", opciones: ["O2", "H2O", "CO2", "HO"], correcta: 1 },
+      { pregunta: "¿Cuál es el planeta más grande?", opciones: ["Tierra", "Saturno", "Júpiter", "Neptuno"], correcta: 2 },
+      { pregunta: "¿Cuál es la unidad básica de la vida?", opciones: ["Átomo", "Molécula", "Célula", "Tejido"], correcta: 2 },
+      { pregunta: "¿Qué gas es esencial para la respiración?", opciones: ["Oxígeno", "CO2", "Nitrógeno", "Hidrógeno"], correcta: 0 },
+      { pregunta: "¿Quién descubrió la gravedad?", opciones: ["Newton", "Einstein", "Copérnico", "Kepler"], correcta: 0 },
+      { pregunta: "¿Qué planeta es el 'planeta rojo'?", opciones: ["Venus", "Marte", "Mercurio", "Saturno"], correcta: 1 }
+    ]
+  };
+
+  let preguntas = [];
+  let preguntaActual = 0;
+  let puntaje = 0;
+  let tiempoRestante;
+  let temporizador;
+  
+  const alertaOverlay = document.getElementById("alerta-overlay");
+  const alertaPersonalizada = document.getElementById("alerta-personalizada");
+  const alertaMensaje = document.getElementById("alerta-mensaje");
+  const alertaBoton = document.getElementById("alerta-boton");
+
+  function seleccionarCategoria(cat) {
+    preguntas = [...bancoPreguntas[cat]]; 
+    preguntas = preguntas.sort(() => Math.random() - 0.5); // aleatoriza
+    preguntaActual = 0;
+    puntaje = 0;
+    document.getElementById("inicio").style.display = "none";
+    document.getElementById("juego").style.display = "block";
+    mostrarPregunta();
+  }
+
+  function mostrarPregunta() {
+    if (preguntaActual >= preguntas.length) {
+      terminarJuego();
+      return;
+    }
+
+    const preguntaElemento = document.getElementById("pregunta");
+    const opcionesElemento = document.getElementById("opciones");
+    const temporizadorElemento = document.getElementById("temporizador");
+
+    preguntaElemento.textContent = preguntas[preguntaActual].pregunta;
+    opcionesElemento.innerHTML = "";
+
+    preguntas[preguntaActual].opciones.forEach((opcion, index) => {
+      const btn = document.createElement("button");
+      btn.textContent = opcion;
+      btn.classList.add("opcion");
+      btn.onclick = () => verificarRespuesta(index);
+      opcionesElemento.appendChild(btn);
+    });
+
+    // Reinicia temporizador
+    tiempoRestante = 15;
+    temporizadorElemento.textContent = ` Tiempo: ${tiempoRestante}s`;
+    clearInterval(temporizador);
+    temporizador = setInterval(() => {
+      tiempoRestante--;
+      temporizadorElemento.textContent = ` Tiempo: ${tiempoRestante}s`;
+      if (tiempoRestante <= 0) {
+        clearInterval(temporizador);
+        mostrarAlerta("¡Tiempo agotado!", "tiempo-agotado");
+      }
+    }, 1000);
+  }
+  
+  function deshabilitarOpciones() {
+      document.querySelectorAll('.opcion').forEach(btn => {
+          btn.disabled = true;
+      });
+  }
+
+  function verificarRespuesta(indice) {
+    clearInterval(temporizador);
+    deshabilitarOpciones();
+    
+    if (indice === preguntas[preguntaActual].correcta) {
+      puntaje++;
+      mostrarAlerta("¡Correcto! 👍", "correcta");
+    } else {
+        const respuestaCorrecta = preguntas[preguntaActual].opciones[preguntas[preguntaActual].correcta];
+        mostrarAlerta(`Incorrecto... La respuesta era "${respuestaCorrecta}"`, "incorrecta");
+    }
+  }
+
+  function siguientePregunta() {
+    preguntaActual++;
+    mostrarPregunta();
+  }
+  
+  function mostrarAlerta(mensaje, tipo) {
+      alertaMensaje.textContent = mensaje;
+      alertaPersonalizada.className = tipo; // Asigna clase para el estilo (correcta/incorrecta)
+      alertaOverlay.style.display = "flex";
+
+      alertaBoton.onclick = () => {
+          alertaOverlay.style.display = "none";
+          siguientePregunta();
+      };
+  }
+
+  function terminarJuego() {
+    document.getElementById("juego").style.display = "none";
+    document.getElementById("resultado").style.display = "block";
+    document.getElementById("mensaje-final").textContent = `Tu puntaje final es ${puntaje} de ${preguntas.length}`;
+
+    let medalla = "";
+    if (puntaje === preguntas.length) medalla = "🥇 Medalla de Oro - ¡Eres un genio!";
+    else if (puntaje >= preguntas.length / 2) medalla = "🥈 Medalla de Plata - ¡Muy bien hecho!";
+    else medalla = "🥉 Medalla de Bronce - ¡Sigue practicando!";
+    
+    document.getElementById("medalla").textContent = medalla;
+  }
+
+  document.getElementById("reiniciar").onclick = () => {
+    reiniciarJuego();
+  };
+
+  function reiniciarJuego() {
+    clearInterval(temporizador);
+    document.getElementById("resultado").style.display = "none";
+    document.getElementById("juego").style.display = "none";
+    document.getElementById("inicio").style.display = "block";
+  }
+</script>
+
+</body>
+</html>
